@@ -1,0 +1,72 @@
+﻿#mempersiapkan library
+import pandas as pd #untuk persiapan dataset
+import matplotlib.pyplot as plt #visualisasi
+from sklearn.metrics import r2_score as r2 #untuk skor r kuadrat/koefisien determinasi
+from sklearn.linear_model import LinearRegression #untuk pemodelan regresi linier
+from sklearn.model_selection import train_test_split #untuk membagi dataset ke dalam training dan testing set
+ 
+#memanggil dataset
+dataset = pd.read_csv('data_penjualan.csv')
+X = dataset.iloc[:, :-1].values
+Y = dataset.iloc[:,  1].values
+
+#split dataset menjadi training set dan testing set
+#10% dari dataset menjadi data testing dan 90% dataset menjadi data training
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = 0.1, random_state = 0)
+#melakukan Fitting Simple Linear Regression pada training set
+regressor = LinearRegression()
+regressor.fit(X_train, Y_train)
+
+#intersep & slope
+print('Intersep : ', regressor.intercept_)
+print('Slope Biaya Promosi : ', regressor.coef_)
+
+#memprediksi hasil Test set
+Y_pred = regressor.predict(X_test)
+hasil = pd.DataFrame(Y_pred, columns=['Y Prediksi'])
+hasil
+
+#visualisasi dataset
+plt.figure(figsize=(7,5))
+plt.scatter(X, Y)
+plt.xlabel('Biaya Promosi')
+plt.ylabel('Nilai Penjualan')
+plt.title('Grafik Biaya Promosi vs Nilai Penjualan')
+plt.grid(True)
+plt.show()
+
+#visualisasi hasil prediksi pada Training set
+#ukuran plot
+plt.figure(figsize=(7,5))
+#biru adalah data observasi
+plt.scatter(X_train, Y_train, color = 'blue')
+#garis merah adalah prediksi dari model hasil pelatihan
+plt.plot(X_train, regressor.predict(X_train), color = 'red')
+#memberi judul dan label
+plt.title('Prediksi Nilai Penjualan Berdasarkan Biaya Promosi')
+plt.xlabel('Biaya Promosi')
+plt.ylabel('Nilai Penjualan')
+plt.grid(True)
+#menampilkan plot
+plt.show()
+
+#testing menghitung residual pada dataset
+pred_val = regressor.predict(X)
+true_val = Y
+residual = true_val - pred_val
+
+# Koefisien Determinasi
+#r2
+print('R-Squared : ', r2(true_val, pred_val, sample_weight=None, multioutput='uniform_average'))
+
+#visualisasi 
+plt.figure(figsize=(7,5))
+plt.scatter(X_test, Y_test, color='b', label='X uji')
+plt.scatter(X_test, regressor.predict(X_test), color='g', label='Y prediksi')
+plt.title('Visualisasi Data Uji dan Hasil Prediksi')
+plt.xlabel('Biaya Promosi')
+plt.ylabel('Nilai Penjualan')
+plt.legend()
+plt.grid(True)
+plt.show()
+
